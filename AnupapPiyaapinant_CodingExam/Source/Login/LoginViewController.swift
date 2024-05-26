@@ -14,15 +14,17 @@ class LoginViewController: UIViewController {
     @IBOutlet weak var passwordErrorLabel: UILabel!
     @IBOutlet weak var loginButton: UIButton!
     
+    private var showPasswordButton = UIButton(type: .system)
+    
     var viewModel: LoginViewModel = LoginViewModel()
     
-    private var emailStatus: LoginEmailVerifyResult? {
+    var emailStatus: LoginEmailVerifyResult? {
         didSet {
             self.checkLoginButtonEnable()
         }
     }
     
-    private var passwordStatus: LoginPasswordVerifyResult? {
+    var passwordStatus: LoginPasswordVerifyResult? {
         didSet {
             self.checkLoginButtonEnable()
         }
@@ -37,8 +39,46 @@ class LoginViewController: UIViewController {
         view.addGestureRecognizer(tapGesture)
     }
     
-    private func setupUI() {
+    override func viewWillAppear(_ animated: Bool) {
+        setupUI()
+    }
+    
+    func setupUI() {
+        emailTextField.text = ""
+        passwordTextField.text = ""
+        
+        passwordTextField.isSecureTextEntry = true
+        showPasswordButton.setImage(UIImage(systemName: "eye.slash"), for: .normal)
+        showPasswordButton.tintColor = .gray
+        showPasswordButton.addTarget(self, action: #selector(togglePasswordVisibility), for: .touchUpInside)
+        showPasswordButton.sizeToFit()
+        
+        passwordTextField.rightView = showPasswordButton
+        passwordTextField.rightViewMode = .always
+        
         loginButton.isEnabled = false
+    }
+    
+    @objc func togglePasswordVisibility() {
+        passwordTextField.isSecureTextEntry.toggle()
+        if passwordTextField.isSecureTextEntry {
+            showPasswordButton.setImage(UIImage(systemName: "eye.slash"), for: .normal)
+        } else {
+            showPasswordButton.setImage(UIImage(systemName: "eye"), for: .normal)
+        }
+    }
+    
+    @IBAction func changePasswordVisibility(_ sender: UIButton) {
+        passwordTextField.isSecureTextEntry.toggle()
+        if passwordTextField.isSecureTextEntry {
+            if let image = UIImage(systemName: "eye.fill") {
+                sender.setImage(image, for: .normal)
+            }
+        } else {
+            if let image = UIImage(systemName: "eye.slash.fill") {
+                sender.setImage(image, for: .normal)
+            }
+        }
     }
     
     private func bindViewModel() {
@@ -57,7 +97,7 @@ class LoginViewController: UIViewController {
         present(alert, animated: true, completion: nil)
     }
     
-    private func checkLoginButtonEnable() {
+    func checkLoginButtonEnable() {
         loginButton.isEnabled = emailStatus == .success && passwordStatus == .success
     }
     
