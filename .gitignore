@@ -88,3 +88,10 @@ fastlane/test_output
 # https://github.com/johnno1962/injectionforxcode
 
 iOSInjectionProject/
+
+# OS X
+
+.DS_Store
+.Spotlight-V100
+.Trashes
+._*
